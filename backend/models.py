@@ -1,4 +1,4 @@
-from sqlalchemy import Column,Integer,String,ForeignKey,Text
+from sqlalchemy import Column,Integer,String,ForeignKey,Text,JSON
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -34,5 +34,7 @@ class LearningPath(Base):
 
     id = Column(Integer,primary_key=True,index=True)
     goal_id = Column(Integer,ForeignKey("learning_goals.id"))
-    roadmap = Column(String)
+    roadmap = Column(JSON)
+
+    goal = relationship("LearningGoal")
 

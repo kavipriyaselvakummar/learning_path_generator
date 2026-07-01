@@ -143,3 +143,4 @@ def generate_roadmap(
         "goal":request.goal,
         "roadmap":roadmap
     }
+

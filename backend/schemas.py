@@ -23,3 +23,11 @@ class RoadmapCreate(BaseModel):
     goal : str
     skills : str
     duration :  str
+
+class LearningPathResponse(BaseModel):
+    id : int
+    goal_id : int
+    roadmap : dict
+
+    class Config:
+        from_attributes = True
