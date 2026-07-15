@@ -1,6 +1,9 @@
 from pypdf import PdfReader
 from pathlib import Path
 import os
+
+BASE_DIR = Path(__file__).parent
+DATA_DIR =BASE_DIR/"data"
 def load_pdf(pdf_path):
     reader = PdfReader(pdf_path)
 
@@ -18,7 +21,7 @@ def load_pdf(pdf_path):
 
     return text
  
-def load_all_pdfs(data_folder="data"):
+def load_all_pdfs(data_folder=DATA_DIR):
     print("Current working Directory:",os.getcwd())
     folder = Path(data_folder)
 
