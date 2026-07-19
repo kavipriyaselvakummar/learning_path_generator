@@ -12,9 +12,30 @@ const mockCareers = [
   { id: 4, title: "UI/UX Designer", category: "Design", salary: "$90k - $140k", demand: "Medium", icon: "🎨" },
   { id: 5, title: "Investment Banker", category: "Finance", salary: "$150k - $250k+", demand: "Medium", icon: "📈" },
   { id: 6, title: "Cybersecurity Analyst", category: "Technology", salary: "$100k - $160k", demand: "High", icon: "🔒" },
+  
+  // Healthcare
+  { id: 7, title: "Clinical Research Director", category: "Healthcare", salary: "$120k - $190k", demand: "High", icon: "🏥" },
+  { id: 8, title: "Registered Nurse", category: "Healthcare", salary: "$75k - $115k", demand: "Very High", icon: "🩺" },
+  { id: 9, title: "Pharmacist", category: "Healthcare", salary: "$110k - $145k", demand: "Medium", icon: "💊" },
+  
+  // Medicine
+  { id: 10, title: "Pediatrician", category: "Medicine", salary: "$160k - $220k", demand: "High", icon: "👶" },
+  { id: 11, title: "Neurosurgeon", category: "Medicine", salary: "$350k - $600k+", demand: "Very High", icon: "🧠" },
+  { id: 12, title: "Anesthesiologist", category: "Medicine", salary: "$280k - $400k+", demand: "High", icon: "💉" },
+  { id: 13, title: "Biomedical Researcher", category: "Medicine", salary: "$85k - $130k", demand: "High", icon: "🔬" },
+
+  // Engineering
+  { id: 14, title: "Robotics Engineer", category: "Engineering", salary: "$95k - $150k", demand: "Very High", icon: "🤖" },
+  { id: 15, title: "Aerospace Engineer", category: "Engineering", salary: "$105k - $165k", demand: "High", icon: "🚀" },
+  { id: 16, title: "Biomedical Engineer", category: "Engineering", salary: "$90k - $140k", demand: "High", icon: "🧬" },
+  
+  // Business
+  { id: 17, title: "Product Manager", category: "Business", salary: "$110k - $170k", demand: "Very High", icon: "💼" },
+  { id: 18, title: "Marketing Director", category: "Business", salary: "$95k - $150k", demand: "High", icon: "📣" },
+  { id: 19, title: "Operations Consultant", category: "Business", salary: "$85k - $130k", demand: "Medium", icon: "📊" },
 ];
 
-const categories = ["All", "Technology", "Design", "Finance", "Healthcare", "Engineering", "Business"];
+const categories = ["All", "Technology", "Design", "Finance", "Healthcare", "Medicine", "Engineering", "Business"];
 
 export default function CareerExplorer() {
   const [activeCategory, setActiveCategory] = useState("All");
@@ -76,7 +97,12 @@ export default function CareerExplorer() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: index * 0.05 }}
             key={career.id}
-            onClick={() => router.push(`/dashboard/roadmap?career=${encodeURIComponent(career.title)}`)}
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                localStorage.setItem("active_career", career.title);
+              }
+              router.push(`/dashboard/roadmap?career=${encodeURIComponent(career.title)}`);
+            }}
             className="glass-card p-6 flex flex-col group cursor-pointer hover:border-primary/50 transition-all hover:-translate-y-1"
           >
             <div className="flex justify-between items-start mb-4">

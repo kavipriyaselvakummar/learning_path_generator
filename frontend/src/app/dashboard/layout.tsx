@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -19,6 +19,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [chatMessage, setChatMessage] = useState("");
   const [chatHistory, setChatHistory] = useState<{role: string, text: string}[]>([]);
   const [isChatLoading, setIsChatLoading] = useState(false);
+
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatHistory, isChatLoading]);
 
   const handleChatSubmit = async () => {
     if (!chatMessage.trim()) return;
@@ -159,15 +165,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
              <X className="w-5 h-5 text-muted-foreground" />
            </button>
         </div>
-        <div className="flex-1 p-4 overflow-y-auto flex flex-col gap-4">
+        <div className="flex-1 p-4 flex flex-col gap-4 overflow-hidden">
            {/* Context-aware content */}
-           <div className="bg-primary/5 rounded-xl p-4 border border-primary/10">
+           <div className="bg-primary/5 rounded-xl p-4 border border-primary/10 flex-shrink-0">
              <p className="text-sm text-primary mb-2 font-medium">✨ Learning Streak</p>
              <p className="text-2xl font-bold">5 Days</p>
              <p className="text-xs text-muted-foreground mt-1">Keep it up! You're in the top 10%.</p>
            </div>
            
-           <div className="bg-secondary/30 rounded-xl p-4">
+           <div className="bg-secondary/30 rounded-xl p-4 flex-shrink-0">
              <p className="text-sm font-medium mb-3">Upcoming Tasks</p>
              <ul className="space-y-3 text-sm">
                <li className="flex items-start gap-2">
@@ -181,7 +187,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
              </ul>
            </div>
            
-           <div className="flex-1 overflow-y-auto mb-4 space-y-3 custom-scrollbar flex flex-col justify-end min-h-[200px]">
+           <div className="flex-1 overflow-y-auto mb-4 space-y-3 custom-scrollbar flex flex-col min-h-[150px]">
              <div className="bg-secondary rounded-xl p-3 text-sm text-muted-foreground">
                Hello! I'm your AI mentor. Ask me anything about your current topic or career path.
              </div>
@@ -195,6 +201,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   Thinking...
                 </div>
              )}
+             <div ref={messagesEndRef} />
            </div>
            
            <div className="mt-auto relative">

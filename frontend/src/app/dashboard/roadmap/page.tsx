@@ -259,10 +259,36 @@ function RoadmapPageInner() {
   const [loadingTopic, setLoadingTopic] = useState<string | null>(null);
   const [modalContent, setModalContent] = useState<{ type: "quiz" | "flashcards" | "chat"; data: any; topic: string } | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [completedTopics, setCompletedTopics] = useState<Record<string, boolean>>({});
+
+  // Load progress
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedProgress = localStorage.getItem(`progress_${careerParam}`);
+      if (savedProgress) {
+        setCompletedTopics(JSON.parse(savedProgress));
+      } else {
+        setCompletedTopics({});
+      }
+    }
+  }, [careerParam]);
+
+  const toggleTopicCompletion = (topicId: string) => {
+    setCompletedTopics((prev) => {
+      const updated = { ...prev, [topicId]: !prev[topicId] };
+      if (typeof window !== "undefined") {
+        localStorage.setItem(`progress_${careerParam}`, JSON.stringify(updated));
+      }
+      return updated;
+    });
+  };
 
   // Generate roadmap on mount / career change
   useEffect(() => {
     setCareerTitle(careerParam);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("active_career", careerParam);
+    }
     setIsGenerating(true);
     setRoadmapData([]);
     setExpandedMonth(1);
@@ -301,9 +327,12 @@ function RoadmapPageInner() {
   };
 
   const getMonthStatus = (month: MonthData, index: number) => {
-    if (month.status) return month.status;
-    if (index === 0) return "in_progress";
-    return "locked";
+    const monthTopics = month.topics || [];
+    if (monthTopics.length === 0) return "not_started";
+    const completedCount = monthTopics.filter(t => completedTopics[t.id || t.name]).length;
+    if (completedCount === 0) return "not_started";
+    if (completedCount === monthTopics.length) return "completed";
+    return "in_progress";
   };
 
   return (
@@ -320,9 +349,37 @@ function RoadmapPageInner() {
             {isGenerating ? "Generating your personalized roadmap..." : `${roadmapData.length} Months • AI-curated curriculum`}
           </p>
         </div>
-        <button className="px-4 py-2 bg-secondary rounded-lg text-sm font-medium hover:bg-secondary/80 transition-colors">
+        <button 
+          onClick={() => window.print()}
+          className="px-4 py-2 bg-secondary rounded-lg text-sm font-medium hover:bg-secondary/80 transition-colors"
+        >
           Export as PDF
         </button>
+        <style>{`
+          @media print {
+            aside, header, nav, button, .inline-flex, .bg-secondary, .flex-shrink-0 {
+              display: none !important;
+            }
+            body, html, main, .glass-card, .bg-background {
+              background: white !important;
+              color: black !important;
+              box-shadow: none !important;
+              border: none !important;
+            }
+            .glass-card {
+              border: 1px solid #e4e4e7 !important;
+              margin-bottom: 1.5rem !important;
+            }
+            .text-muted-foreground, .text-xs {
+              color: #71717a !important;
+            }
+            main {
+              padding-right: 0 !important;
+              margin: 0 auto !important;
+              max-width: 100% !important;
+            }
+          }
+        `}</style>
       </div>
 
       {/* Loading State */}
@@ -358,14 +415,16 @@ function RoadmapPageInner() {
                 <motion.div key={month.month || index} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }} className="relative pl-16">
 
-                  <div className={`absolute left-[16px] top-2 w-6 h-6 rounded-full border-4 border-background z-10 transition-colors ${isCompleted ? "bg-primary" : isInProgress ? "bg-[#06b6d4] shadow-[0_0_15px_#06b6d4]" : "bg-muted-foreground"}`} />
+                  <div className={`absolute left-[16px] top-2 w-6 h-6 rounded-full border-4 border-background z-10 transition-colors ${
+                    isCompleted ? "bg-primary" : isInProgress ? "bg-[#06b6d4] shadow-[0_0_15px_#06b6d4]" : status === "not_started" ? "bg-yellow-500/20 border-yellow-500/80 shadow-[0_0_10px_rgba(234,179,8,0.3)]" : "bg-muted-foreground"
+                   }`} />
 
                   <div className={`glass-card rounded-2xl overflow-hidden transition-all duration-300 ${isInProgress ? "glow-border ring-1 ring-[#06b6d4]/50" : ""}`}>
                     <div onClick={() => setExpandedMonth(isExpanded ? null : month.month)}
                       className="p-5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors">
                       <div>
-                        <p className={`text-sm font-semibold mb-1 ${isCompleted ? "text-primary" : isInProgress ? "text-[#06b6d4]" : "text-muted-foreground"}`}>
-                          Month {month.month} {isCompleted && "• Completed"} {isInProgress && "• In Progress"}
+                        <p className={`text-sm font-semibold mb-1 ${isCompleted ? "text-primary" : isInProgress ? "text-[#06b6d4]" : "text-yellow-500/80"}`}>
+                          Month {month.month} • {isCompleted ? "Completed" : isInProgress ? "In Progress" : "Not Started"}
                         </p>
                         <h3 className="text-xl font-bold">{monthTitle}</h3>
                       </div>
@@ -390,8 +449,13 @@ function RoadmapPageInner() {
                                   {topics.map((topic, ti) => (
                                     <div key={topic.id || ti} className="bg-background rounded-xl p-4 border border-border flex flex-col hover:border-primary/50 transition-colors group">
                                       <div className="flex justify-between items-start mb-2">
-                                        <span className="font-medium text-sm group-hover:text-primary transition-colors">{topic.name}</span>
-                                        <button className="text-muted-foreground hover:text-primary"><CheckCircle2 className="w-4 h-4" /></button>
+                                         <span className="font-medium text-sm group-hover:text-primary transition-colors">{topic.name}</span>
+                                         <button 
+                                           onClick={() => toggleTopicCompletion(topic.id || topic.name)}
+                                           className={`transition-colors ${completedTopics[topic.id || topic.name] ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
+                                         >
+                                           <CheckCircle2 className="w-4 h-4" />
+                                         </button>
                                       </div>
                                       <div className="mt-auto flex justify-between text-xs text-muted-foreground">
                                         {topic.hours > 0 && <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {topic.hours}h</span>}
