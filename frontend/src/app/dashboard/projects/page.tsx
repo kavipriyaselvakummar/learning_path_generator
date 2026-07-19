@@ -32,8 +32,71 @@ const careerProjectsMapping: Record<string, Omit<ProjectItem, "career">[]> = {
   "UI/UX Designer": [
     { id: "p9", title: "Redesigning a Local Delivery App", tech: ["Figma", "User Research", "Wireframing"], difficulty: "Intermediate", time: "2 weeks", status: "not_started" },
     { id: "p10", title: "High-Fidelity Smart Home Dashboard", tech: ["Prototyping", "Design System", "Figma"], difficulty: "Hard", time: "3 weeks", status: "not_started" }
+  ],
+  "Investment Banker": [
+    { id: "p11", title: "LBO Modeling for Retail Acquisition", tech: ["Excel", "LBO Structure", "Debt Schedules"], difficulty: "Hard", time: "3 weeks", status: "not_started" },
+    { id: "p12", title: "M&A Valuation Pitchbook", tech: ["Financial Modeling", "DCF Valuation", "PowerPoint"], difficulty: "Intermediate", time: "2 weeks", status: "not_started" },
+    { id: "p13", title: "Comparable Companies Analysis (CCA)", tech: ["Excel", "Trading Multiples"], difficulty: "Beginner", time: "1 week", status: "not_started" }
+  ],
+  "Cybersecurity Analyst": [
+    { id: "p14", title: "Intrusion Detection System Mockup", tech: ["Snort", "Linux Command Line", "PCAP Analysis"], difficulty: "Intermediate", time: "2 weeks", status: "not_started" },
+    { id: "p15", title: "Vulnerability Assessment & Audit Report", tech: ["Nessus", "Nmap Audits", "Report Writing"], difficulty: "Beginner", time: "1 week", status: "not_started" },
+    { id: "p16", title: "Phishing Campaign Simulator", tech: ["GoPhish", "HTML templates", "SMTP Configs"], difficulty: "Hard", time: "3 weeks", status: "not_started" }
+  ],
+  "Clinical Research Director": [
+    { id: "p17", title: "Clinical Trial Protocol Design", tech: ["Regulatory Frameworks", "GCP Compliance"], difficulty: "Hard", time: "3 weeks", status: "not_started" },
+    { id: "p18", title: "Patient Recruitment Strategy Plan", tech: ["Data Analytics", "Recruitment Channels"], difficulty: "Intermediate", time: "2 weeks", status: "not_started" }
+  ],
+  "Registered Nurse": [
+    { id: "p19", title: "Patient Care Plan Optimization", tech: ["Clinical Flow", "Patient Assessment"], difficulty: "Intermediate", time: "2 weeks", status: "not_started" },
+    { id: "p20", title: "Electronic Health Record (EHR) Auditing", tech: ["EHR Systems", "HIPAA Compliance"], difficulty: "Beginner", time: "1 week", status: "not_started" }
+  ],
+  "Pharmacist": [
+    { id: "p21", title: "Drug Interaction Database Checker", tech: ["Pharmacology", "SQL Database", "Python"], difficulty: "Intermediate", time: "2 weeks", status: "not_started" },
+    { id: "p22", title: "Patient Counseling Simulation Guide", tech: ["Counseling Best Practices", "Ethics Protocols"], difficulty: "Beginner", time: "1 week", status: "not_started" }
+  ],
+  "Pediatrician": [
+    { id: "p23", title: "Child Development Milestones Chart", tech: ["Pediatrics Theory", "Milestone Mapping"], difficulty: "Beginner", time: "1 week", status: "not_started" },
+    { id: "p24", title: "Neonatal Care Protocol Guide", tech: ["Clinical Medicine", "Neonatal Care Guidelines"], difficulty: "Hard", time: "3 weeks", status: "not_started" }
+  ],
+  "Neurosurgeon": [
+    { id: "p25", title: "Craniotomy Surgical Pathway Plan", tech: ["Neurosurgery Guides", "Surgical Simulation"], difficulty: "Hard", time: "3 weeks", status: "not_started" },
+    { id: "p26", title: "Brain Tumor Imaging Diagnosis Guide", tech: ["Radiology Analysis", "Pathology Profiles"], difficulty: "Intermediate", time: "2 weeks", status: "not_started" }
+  ],
+  "Anesthesiologist": [
+    { id: "p27", title: "Pre-Operative Anesthetic Plan Creator", tech: ["Anesthesia Methods", "Pre-op Assessments"], difficulty: "Intermediate", time: "2 weeks", status: "not_started" },
+    { id: "p28", title: "Anesthetic Dosage Calculation Model", tech: ["Pharmacology Formulas", "Excel Models"], difficulty: "Hard", time: "3 weeks", status: "not_started" }
+  ],
+  "Biomedical Researcher": [
+    { id: "p29", title: "CRISPR Gene Editing Analysis", tech: ["Genetics", "CRISPR Tech", "Laboratory Records"], difficulty: "Hard", time: "3 weeks", status: "not_started" },
+    { id: "p30", title: "Cancer Biomarker Detection Study", tech: ["Biostatistics", "Assay Development"], difficulty: "Intermediate", time: "2 weeks", status: "not_started" }
+  ],
+  "Robotics Engineer": [
+    { id: "p31", title: "2D LiDAR Mapping & Navigation", tech: ["ROS Framework", "C++", "Slam Algorithms"], difficulty: "Hard", time: "3 weeks", status: "not_started" },
+    { id: "p32", title: "Robotic Arm Inverse Kinematics Simulator", tech: ["Python", "MATLAB", "Kinematic Chains"], difficulty: "Intermediate", time: "2 weeks", status: "not_started" }
+  ],
+  "Aerospace Engineer": [
+    { id: "p33", title: "Subsonic Airfoil Drag Minimization", tech: ["CAD Modeling", "CFD Simulations"], difficulty: "Intermediate", time: "2 weeks", status: "not_started" },
+    { id: "p34", title: "Rocket Trajectory Flight Simulator", tech: ["Python", "Flight Dynamics Equations"], difficulty: "Hard", time: "3 weeks", status: "not_started" }
+  ],
+  "Biomedical Engineer": [
+    { id: "p35", title: "Prosthetic Hand CAD Design", tech: ["SolidWorks CAD", "Biomechanics Theory"], difficulty: "Hard", time: "3 weeks", status: "not_started" },
+    { id: "p36", title: "ECG Signal Processing Filter", tech: ["MATLAB Sim", "Signal Processing Filters"], difficulty: "Intermediate", time: "2 weeks", status: "not_started" }
+  ],
+  "Product Manager": [
+    { id: "p37", title: "PRD for a Collaborative Whiteboard Tool", tech: ["Agile Roadmap", "PM Frameworks", "User Stories"], difficulty: "Intermediate", time: "2 weeks", status: "not_started" },
+    { id: "p38", title: "Product Launch Go-To-Market Plan", tech: ["Marketing Pitch", "GTM Strategy"], difficulty: "Beginner", time: "1 week", status: "not_started" }
+  ],
+  "Marketing Director": [
+    { id: "p39", title: "SEO & Growth Campaign Strategy", tech: ["SEO/SEM Tools", "Google Ads Campaigns", "Analytics"], difficulty: "Intermediate", time: "2 weeks", status: "not_started" },
+    { id: "p40", title: "Brand Re-positioning Proposal", tech: ["Brand Design System", "Strategy Slide decks"], difficulty: "Hard", time: "3 weeks", status: "not_started" }
+  ],
+  "Operations Consultant": [
+    { id: "p41", title: "Warehouse Layout Bottleneck Analysis", tech: ["Lean Six Sigma", "Process Audits", "Excel Charts"], difficulty: "Intermediate", time: "2 weeks", status: "not_started" },
+    { id: "p42", title: "Supply Chain Distribution Simulation", tech: ["Supply Chain Logistics", "Simulation Engines"], difficulty: "Hard", time: "3 weeks", status: "not_started" }
   ]
 };
+
 
 export default function ProjectsPage() {
   const [career, setCareer] = useState("Machine Learning Engineer");
