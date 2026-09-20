@@ -19,13 +19,13 @@ def parse_json_response(response_text):
 
 def generate_learning_roadmap(goal, skills, duration, context=""):
     prompt = f"""
-    Create a professional learning roadmap.
+    Create a highly detailed, professional learning roadmap.
     
     Context: {context}
 
     Goal: {goal}
     Current Skills: {skills}
-    Duration: {duration}
+    Duration: {duration} (CRITICAL: You MUST output exactly 3 months in the array, no more, no less).
 
     Return ONLY valid JSON.
     Format:
@@ -34,6 +34,7 @@ def generate_learning_roadmap(goal, skills, duration, context=""):
        "months":[
        {{
            "month":1,
+           "title": "Month 1 Theme",
            "topics":[
                 {{"id": "t1", "name": "Topic 1", "estimated_hours": 10, "difficulty": "Beginner"}}
            ],
@@ -44,7 +45,7 @@ def generate_learning_roadmap(goal, skills, duration, context=""):
                 {{"id": "r1", "title": "Resource 1", "type": "course", "url": "https://..."}}
            ]
        }}
-       ]
+       ] // MUST contain exactly the number of months specified in {duration}. Each month MUST contain at least 4 topics and 1 project.
     }}
     Do not include markdown. Do not include explanations.
     """

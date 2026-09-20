@@ -16,6 +16,8 @@ class User(Base):
     achievements = relationship("Achievement", back_populates="user")
     quiz_history = relationship("QuizHistory", back_populates="user")
     chat_history = relationship("ChatHistory", back_populates="user")
+    study_sessions = relationship("StudySession", back_populates="user")
+    flashcard_progress = relationship("FlashcardProgress", back_populates="user")
 
 class LearningGoal(Base):
     __tablename__ = "learning_goals"
@@ -113,3 +115,28 @@ class Resource(Base):
     recommended_for_stage = Column(String) # month or topic
     
     learning_path = relationship("LearningPath", back_populates="resources")
+
+class StudySession(Base):
+    __tablename__ = "study_sessions"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    path_id = Column(Integer, ForeignKey("learning_path.id"), nullable=True)
+    topic_id = Column(String)
+    start_time = Column(DateTime(timezone=True), server_default=func.now())
+    end_time = Column(DateTime(timezone=True), nullable=True)
+    duration_minutes = Column(Float, default=0)
+    
+    user = relationship("User", back_populates="study_sessions")
+
+class FlashcardProgress(Base):
+    __tablename__ = "flashcard_progress"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    topic_id = Column(String)
+    card_id = Column(String) # Assuming an ID or hash of the card
+    status = Column(String, default="NEW") # NEW, LEARNING, MASTERED
+    last_reviewed = Column(DateTime(timezone=True), nullable=True)
+    
+    user = relationship("User", back_populates="flashcard_progress")

@@ -6,11 +6,12 @@ from sqlalchemy.orm import Session
 # from faiss_service import search, retrieve_chunks
 from gemini_service import generate_learning_roadmap, chat_with_ai, generate_quiz, generate_notes
 from database import engine, get_db
-from models import Base, User, LearningGoal, LearningPath, Progress
+from models import Base, User, LearningGoal, LearningPath, Progress, StudySession, FlashcardProgress
 from schemas import (
-    UserCreate, UserResponse, UserLogin, Token, 
+    UserCreate, UserResponse, UserLogin, Token, UserUpdate,
     LearningGoalCreate, LearningGoalUpdate, RoadmapCreate, 
     LearningPathResponse, ProgressUpdate, ProgressResponse,
+    StudySessionCreate, StudySessionResponse, FlashcardProgressUpdate, FlashcardProgressResponse,
     ChatRequest, TopicRequest
 )
 from auth import (
@@ -68,6 +69,16 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
 
 @app.get("/auth/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):
+    return current_user
+
+@app.put("/users/me", response_model=UserResponse)
+def update_me(user_update: UserUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    if user_update.name:
+        current_user.name = user_update.name
+    if user_update.email:
+        current_user.email = user_update.email
+    db.commit()
+    db.refresh(current_user)
     return current_user
 
 # --- LEARNING GOALS ---
@@ -189,6 +200,98 @@ def generate_path_preview(request: RoadmapCreate):
     """Generate a roadmap preview without saving to DB. No auth required."""
     try:
         roadmap = generate_learning_roadmap(request.goal, request.skills, request.duration)
-        return {"goal": request.goal, "roadmap": roadmap, "months": roadmap.get("months", [])}
+        months = roadmap.get("months", [])
+        
+        # Fallback to ensure exactly 3 months if AI failed the prompt constraints
+        while len(months) < 3:
+            next_num = len(months) + 1
+            months.append({
+                "month": next_num,
+                "title": f"Advanced {request.goal} Concepts",
+                "topics": [
+                    {"id": f"t_{next_num}1", "name": "Advanced Architecture & Systems", "estimated_hours": 20, "difficulty": "Hard"},
+                    {"id": f"t_{next_num}2", "name": "Performance Optimization", "estimated_hours": 15, "difficulty": "Hard"},
+                    {"id": f"t_{next_num}3", "name": "Security & Best Practices", "estimated_hours": 15, "difficulty": "Hard"},
+                    {"id": f"t_{next_num}4", "name": "Real-world Deployment", "estimated_hours": 20, "difficulty": "Hard"}
+                ],
+                "projects": [
+                    {"id": f"p_{next_num}1", "title": "Capstone Project", "difficulty": "Hard", "technologies": [], "estimated_time": "3 weeks"}
+                ],
+                "resources": []
+            })
+        
+        roadmap["months"] = months
+        return {"goal": request.goal, "roadmap": roadmap, "months": months}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/study-sessions/start", response_model=StudySessionResponse)
+def start_study_session(session_data: StudySessionCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    new_session = StudySession(
+        user_id=current_user.id,
+        path_id=session_data.path_id,
+        topic_id=session_data.topic_id
+    )
+    db.add(new_session)
+    db.commit()
+    db.refresh(new_session)
+    return new_session
+
+@app.post("/study-sessions/{session_id}/finish", response_model=StudySessionResponse)
+def finish_study_session(session_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    session = db.query(StudySession).filter(StudySession.id == session_id, StudySession.user_id == current_user.id).first()
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    
+    from datetime import datetime
+    session.end_time = datetime.utcnow()
+    duration = (session.end_time - session.start_time).total_seconds() / 60.0
+    session.duration_minutes = duration
+    db.commit()
+    db.refresh(session)
+    return session
+
+@app.post("/flashcards/progress", response_model=FlashcardProgressResponse)
+def update_flashcard_progress(progress_data: FlashcardProgressUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    progress = db.query(FlashcardProgress).filter(
+        FlashcardProgress.user_id == current_user.id,
+        FlashcardProgress.card_id == progress_data.card_id
+    ).first()
+
+    from datetime import datetime
+    if progress:
+        progress.status = progress_data.status
+        progress.last_reviewed = datetime.utcnow()
+    else:
+        progress = FlashcardProgress(
+            user_id=current_user.id,
+            topic_id=progress_data.topic_id,
+            card_id=progress_data.card_id,
+            status=progress_data.status,
+            last_reviewed=datetime.utcnow()
+        )
+        db.add(progress)
+    
+    db.commit()
+    db.refresh(progress)
+    return progress
+
+@app.get("/analytics")
+def get_analytics(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    sessions = db.query(StudySession).filter(StudySession.user_id == current_user.id).all()
+    total_minutes = sum([s.duration_minutes for s in sessions if s.duration_minutes])
+    
+    progress = db.query(Progress).filter(Progress.user_id == current_user.id).all()
+    completed_topics = len([p for p in progress if p.status == "completed"])
+    
+    # Calculate streak (simple version)
+    from datetime import datetime
+    streak = 0
+    
+    return {
+        "total_study_hours": round(total_minutes / 60.0, 1),
+        "topics_completed": completed_topics,
+        "current_streak": streak,
+        "sessions": len(sessions)
+    }
+

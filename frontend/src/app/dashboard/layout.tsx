@@ -10,8 +10,10 @@ import {
   ChevronRight, Sparkles, X, Menu, Bell,
   User, Target, ArrowRight
 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAiSidebarOpen, setIsAiSidebarOpen] = useState(true);
@@ -126,15 +128,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </div>
         
         <div className="p-4 border-t border-border/50">
-          <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-secondary/50 cursor-pointer transition-colors">
-            <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
-              <User className="w-5 h-5" />
+          <Link href="/dashboard/settings">
+            <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-secondary/50 cursor-pointer transition-colors">
+              <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
+                <User className="w-5 h-5" />
+              </div>
+              <div className="overflow-hidden">
+                <ProfileDisplay user={user} />
+              </div>
             </div>
-            <div className="overflow-hidden">
-              <p className="text-sm font-medium truncate">Kavi Priya</p>
-              <p className="text-xs text-muted-foreground truncate">Free Plan</p>
-            </div>
-          </div>
+          </Link>
         </div>
       </aside>
 

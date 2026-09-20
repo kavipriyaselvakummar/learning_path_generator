@@ -250,10 +250,10 @@ const staticRoadmap: MonthData[] = [
 // ---- Main Page (inner) ----
 function RoadmapPageInner() {
   const searchParams = useSearchParams();
-  const careerParam = searchParams.get("career") || "Machine Learning Engineer";
+  const careerParam = searchParams.get("career");
 
   const [roadmapData, setRoadmapData] = useState<MonthData[]>([]);
-  const [careerTitle, setCareerTitle] = useState(careerParam);
+  const [careerTitle, setCareerTitle] = useState("Loading...");
   const [isGenerating, setIsGenerating] = useState(true);
   const [expandedMonth, setExpandedMonth] = useState<number | null>(1);
   const [loadingTopic, setLoadingTopic] = useState<string | null>(null);
@@ -261,50 +261,51 @@ function RoadmapPageInner() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [completedTopics, setCompletedTopics] = useState<Record<string, boolean>>({});
 
-  // Load progress
+  // Generate roadmap on mount / career change
   useEffect(() => {
+    let active = "Machine Learning Engineer";
     if (typeof window !== "undefined") {
-      const savedProgress = localStorage.getItem(`progress_${careerParam}`);
+      active = careerParam || localStorage.getItem("active_career") || "Machine Learning Engineer";
+      setCareerTitle(active);
+      localStorage.setItem("active_career", active);
+      
+      const savedProgress = localStorage.getItem(`progress_${active}`);
       if (savedProgress) {
         setCompletedTopics(JSON.parse(savedProgress));
       } else {
         setCompletedTopics({});
       }
     }
+
+    setIsGenerating(true);
+    setRoadmapData([]);
+    setExpandedMonth(0);
+
+    callApi("/generate-path-preview", { goal: active, skills: "Beginner", duration: "3 months" })
+      .then((data) => {
+        const months = (data?.months || data?.roadmap?.months || []) as MonthData[];
+        if (months.length > 0) {
+          setRoadmapData(months);
+          if (typeof window !== "undefined") localStorage.setItem(`roadmap_data_${active}`, JSON.stringify(months));
+        } else {
+          setRoadmapData(staticRoadmap);
+        }
+      })
+      .catch(() => {
+        setRoadmapData(staticRoadmap);
+      })
+      .finally(() => setIsGenerating(false));
   }, [careerParam]);
 
   const toggleTopicCompletion = (topicId: string) => {
     setCompletedTopics((prev) => {
       const updated = { ...prev, [topicId]: !prev[topicId] };
       if (typeof window !== "undefined") {
-        localStorage.setItem(`progress_${careerParam}`, JSON.stringify(updated));
+        localStorage.setItem(`progress_${careerTitle}`, JSON.stringify(updated));
       }
       return updated;
     });
   };
-
-  // Generate roadmap on mount / career change
-  useEffect(() => {
-    setCareerTitle(careerParam);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("active_career", careerParam);
-    }
-    setIsGenerating(true);
-    setRoadmapData([]);
-    setExpandedMonth(1);
-
-    callApi("/generate-path-preview", { goal: careerParam, skills: "Beginner", duration: "3 months" })
-      .then((data) => {
-        const months = (data?.months || data?.roadmap?.months || []) as MonthData[];
-        if (months.length > 0) setRoadmapData(months);
-        else setRoadmapData(staticRoadmap);
-      })
-      .catch(() => {
-        // Fallback to static
-        setRoadmapData(staticRoadmap);
-      })
-      .finally(() => setIsGenerating(false));
-  }, [careerParam]);
 
   const handleAction = async (topicName: string, actionType: "quiz" | "flashcards" | "chat") => {
     setLoadingTopic(topicName + actionType);
@@ -398,11 +399,11 @@ function RoadmapPageInner() {
 
           <div className="space-y-12">
             {roadmapData.map((month, index) => {
-              const isExpanded = expandedMonth === month.month;
+              const isExpanded = expandedMonth === index;
               const status = getMonthStatus(month, index);
               const isCompleted = status === "completed";
               const isInProgress = status === "in_progress";
-              const monthTitle = month.title || `Month ${month.month}`;
+              const monthTitle = month.title || `Month ${index + 1}`;
 
               // Normalize topic hours
               const topics = (month.topics || []).map(t => ({ ...t, hours: t.hours || t.estimated_hours || 0 }));
@@ -420,11 +421,11 @@ function RoadmapPageInner() {
                    }`} />
 
                   <div className={`glass-card rounded-2xl overflow-hidden transition-all duration-300 ${isInProgress ? "glow-border ring-1 ring-[#06b6d4]/50" : ""}`}>
-                    <div onClick={() => setExpandedMonth(isExpanded ? null : month.month)}
+                    <div onClick={() => setExpandedMonth(isExpanded ? null : index)}
                       className="p-5 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors">
                       <div>
                         <p className={`text-sm font-semibold mb-1 ${isCompleted ? "text-primary" : isInProgress ? "text-[#06b6d4]" : "text-yellow-500/80"}`}>
-                          Month {month.month} • {isCompleted ? "Completed" : isInProgress ? "In Progress" : "Not Started"}
+                          Month {index + 1} • {isCompleted ? "Completed" : isInProgress ? "In Progress" : "Not Started"}
                         </p>
                         <h3 className="text-xl font-bold">{monthTitle}</h3>
                       </div>

@@ -70,3 +70,38 @@ class ChatRequest(BaseModel):
 
 class TopicRequest(BaseModel):
     topic: str
+
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+
+class StudySessionCreate(BaseModel):
+    path_id: Optional[int] = None
+    topic_id: str
+
+class StudySessionResponse(BaseModel):
+    id: int
+    user_id: int
+    path_id: Optional[int]
+    topic_id: str
+    start_time: datetime
+    end_time: Optional[datetime]
+    duration_minutes: float
+
+    class Config:
+        from_attributes = True
+
+class FlashcardProgressUpdate(BaseModel):
+    topic_id: str
+    card_id: str
+    status: str # NEW, LEARNING, MASTERED
+
+class FlashcardProgressResponse(BaseModel):
+    id: int
+    topic_id: str
+    card_id: str
+    status: str
+    last_reviewed: Optional[datetime]
+
+    class Config:
+        from_attributes = True
