@@ -3,13 +3,15 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { User, Shield, Sliders, RefreshCw, CheckCircle, Save, Loader2 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function SettingsPage() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<"profile" | "preferences" | "security" | "danger">("profile");
   
   // Profile settings state
-  const [name, setName] = useState("Kavi Priya");
-  const [email, setEmail] = useState("kavipriya@example.com");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [planType, setPlanType] = useState("Free Plan");
 
   // Preferences state
@@ -25,17 +27,26 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const savedName = localStorage.getItem("user_name");
-      const savedEmail = localStorage.getItem("user_email");
-      if (savedName) setName(savedName);
-      if (savedEmail) setEmail(savedEmail);
+      // Priority: localStorage > auth context > default
+      const savedName = localStorage.getItem("user_name") || user?.name || "User";
+      const savedEmail = localStorage.getItem("user_email") || user?.email || "";
+      setName(savedName);
+      setEmail(savedEmail);
+      
+      // Also save to localStorage if not already there (first login sync)
+      if (!localStorage.getItem("user_name") && user?.name) {
+        localStorage.setItem("user_name", user.name);
+      }
+      if (!localStorage.getItem("user_email") && user?.email) {
+        localStorage.setItem("user_email", user.email);
+      }
       
       const pace = localStorage.getItem("learning_pace");
       const level = localStorage.getItem("skill_level");
       if (pace) setLearningPace(pace);
       if (level) setSkillLevel(level);
     }
-  }, []);
+  }, [user]);
 
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();

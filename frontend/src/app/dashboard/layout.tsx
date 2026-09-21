@@ -12,6 +12,26 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
+// Separate client-only component to avoid hydration mismatch
+function ProfileDisplay({ user }: { user: { name: string; email: string } | null }) {
+  const [displayName, setDisplayName] = useState("User");
+  const [displayEmail, setDisplayEmail] = useState("");
+
+  useEffect(() => {
+    const storedName = localStorage.getItem("user_name");
+    const storedEmail = localStorage.getItem("user_email");
+    setDisplayName(storedName || user?.name || "User");
+    setDisplayEmail(storedEmail || user?.email || "");
+  }, [user]);
+
+  return (
+    <>
+      <p className="text-sm font-medium truncate">{displayName}</p>
+      <p className="text-xs text-muted-foreground truncate">{displayEmail}</p>
+    </>
+  );
+}
+
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const pathname = usePathname();

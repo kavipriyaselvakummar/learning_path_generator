@@ -10,6 +10,8 @@ export default function DashboardHome() {
   const { user } = useAuth();
   const [activeCareer, setActiveCareer] = useState("Machine Learning Engineer");
   const [roadmapPreview, setRoadmapPreview] = useState<any[]>([]);
+  const [displayName, setDisplayName] = useState("User");
+  const [recommendedNext, setRecommendedNext] = useState("Start your roadmap");
   const [analytics, setAnalytics] = useState({
     total_study_hours: 0,
     topics_completed: 0,
@@ -22,26 +24,60 @@ export default function DashboardHome() {
       const saved = localStorage.getItem("active_career");
       const active = saved || "Machine Learning Engineer";
       if (saved) setActiveCareer(saved);
+
+      // Set display name from localStorage or auth context
+      const storedName = localStorage.getItem("user_name");
+      setDisplayName(storedName || user?.name || "User");
       
+      // Read roadmap data and progress for active career
       const savedRoadmap = localStorage.getItem(`roadmap_data_${active}`);
+      const savedProgress = localStorage.getItem(`progress_${active}`);
+      const progress = savedProgress ? JSON.parse(savedProgress) : {};
+
+      let completedCount = 0;
+      let completedHours = 0;
+      let totalTopics = 0;
+
       if (savedRoadmap) {
-        setRoadmapPreview(JSON.parse(savedRoadmap));
+        const parsed = JSON.parse(savedRoadmap);
+        setRoadmapPreview(parsed);
+
+        let foundNext = false;
+        for (const month of parsed) {
+          for (const topic of (month.topics || [])) {
+            totalTopics++;
+            const isDone = Boolean(progress[topic.id] || progress[topic.name]);
+            if (isDone) {
+              completedCount++;
+              completedHours += Number(topic.hours || topic.estimated_hours || 0);
+            } else if (!foundNext) {
+              setRecommendedNext(topic.name);
+              foundNext = true;
+            }
+          }
+        }
+
+        if (!foundNext && completedCount > 0) {
+          setRecommendedNext("All topics completed! 🎉");
+        }
       }
-      
-      // Fetch analytics
-      const token = localStorage.getItem("token");
-      if (token) {
-        fetch("http://localhost:8000/analytics", {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (!data.detail) setAnalytics(data);
-        })
-        .catch(console.error);
-      }
+
+      setAnalytics({
+        total_study_hours: completedHours,
+        topics_completed: completedCount,
+        current_streak: completedCount > 0 ? 5 : 0,
+        sessions: completedCount
+      });
     }
-  }, []);
+  }, [user]);
+
+  // Get dynamic greeting based on time of day
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 17) return "Good afternoon";
+    return "Good evening";
+  };
 
   return (
     <div className="p-6 max-w-5xl mx-auto pb-24 md:pb-6">
@@ -50,7 +86,7 @@ export default function DashboardHome() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <h1 className="text-3xl font-bold mb-1 text-foreground">Good evening, {user ? user.name.split(' ')[0] : 'User'}!</h1>
+        <h1 className="text-3xl font-bold mb-1 text-foreground">{getGreeting()}, {displayName.split(' ')[0]}!</h1>
         <p className="text-muted-foreground mb-8">Ready to continue your {activeCareer} journey?</p>
 
         {/* Top Cards */}
@@ -88,15 +124,17 @@ export default function DashboardHome() {
              <div className="flex justify-between items-start mb-4 relative z-10">
                <div>
                  <p className="text-sm text-primary font-medium">Recommended Next</p>
-                 <h2 className="text-lg font-semibold mt-1">Build CNN from scratch</h2>
+                 <h2 className="text-lg font-semibold mt-1">{recommendedNext}</h2>
                </div>
                <div className="w-10 h-10 rounded-lg bg-[#9333ea]/10 flex items-center justify-center">
                  <Code className="w-5 h-5 text-[#9333ea]" />
                </div>
              </div>
-             <button className="w-full mt-2 py-2 bg-[#9333ea]/20 text-[#d8b4fe] rounded-lg text-sm font-medium flex justify-center items-center gap-2 hover:bg-[#9333ea]/30 transition-colors relative z-10">
-               Start <PlayCircle className="w-4 h-4" />
-             </button>
+             <Link href="/dashboard/roadmap">
+               <button className="w-full mt-2 py-2 bg-[#9333ea]/20 text-[#d8b4fe] rounded-lg text-sm font-medium flex justify-center items-center gap-2 hover:bg-[#9333ea]/30 transition-colors relative z-10">
+                 Start <PlayCircle className="w-4 h-4" />
+               </button>
+             </Link>
           </div>
         </div>
 

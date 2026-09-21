@@ -232,6 +232,8 @@ const staticRoadmap: MonthData[] = [
     topics: [
       { id: "t1", name: "Core Concepts & Theory", hours: 15, difficulty: "Beginner" },
       { id: "t2", name: "Tools & Environment Setup", hours: 10, difficulty: "Beginner" },
+      { id: "t3", name: "Fundamentals Deep Dive", hours: 15, difficulty: "Beginner" },
+      { id: "t4", name: "Basic Exercises & Practice", hours: 10, difficulty: "Beginner" },
     ],
     projects: [{ id: "p1", title: "Starter Project", time: "1 week", difficulty: "Beginner", tech: ["Python"] }],
     resources: [{ id: "r1", title: "Official Documentation", type: "Website" }]
@@ -239,11 +241,24 @@ const staticRoadmap: MonthData[] = [
   {
     month: 2, title: "Core Skills", status: "locked",
     topics: [
-      { id: "t3", name: "Intermediate Techniques", hours: 20, difficulty: "Intermediate" },
-      { id: "t4", name: "Practical Application", hours: 25, difficulty: "Intermediate" },
+      { id: "t5", name: "Intermediate Techniques", hours: 20, difficulty: "Intermediate" },
+      { id: "t6", name: "Practical Application", hours: 25, difficulty: "Intermediate" },
+      { id: "t7", name: "Design Patterns & Architecture", hours: 15, difficulty: "Intermediate" },
+      { id: "t8", name: "Testing & Debugging", hours: 10, difficulty: "Intermediate" },
     ],
     projects: [{ id: "p2", title: "Portfolio Project", time: "2 weeks", difficulty: "Intermediate", tech: ["Python", "APIs"] }],
     resources: [{ id: "r2", title: "Online Course", type: "Course" }]
+  },
+  {
+    month: 3, title: "Advanced Mastery", status: "locked",
+    topics: [
+      { id: "t9", name: "Advanced Concepts & Optimization", hours: 20, difficulty: "Hard" },
+      { id: "t10", name: "System Design & Scalability", hours: 20, difficulty: "Hard" },
+      { id: "t11", name: "Industry Best Practices", hours: 15, difficulty: "Hard" },
+      { id: "t12", name: "Real-world Deployment", hours: 15, difficulty: "Hard" },
+    ],
+    projects: [{ id: "p3", title: "Capstone Project", time: "3 weeks", difficulty: "Hard", tech: ["Python", "APIs", "Cloud"] }],
+    resources: [{ id: "r3", title: "Advanced Tutorials", type: "Course" }]
   },
 ];
 
@@ -261,45 +276,67 @@ function RoadmapPageInner() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [completedTopics, setCompletedTopics] = useState<Record<string, boolean>>({});
 
-  // Generate roadmap on mount / career change
-  useEffect(() => {
-    let active = "Machine Learning Engineer";
-    if (typeof window !== "undefined") {
-      active = careerParam || localStorage.getItem("active_career") || "Machine Learning Engineer";
-      setCareerTitle(active);
-      localStorage.setItem("active_career", active);
-      
-      const savedProgress = localStorage.getItem(`progress_${active}`);
-      if (savedProgress) {
-        setCompletedTopics(JSON.parse(savedProgress));
-      } else {
-        setCompletedTopics({});
-      }
-    }
-
-    setIsGenerating(true);
-    setRoadmapData([]);
-    setExpandedMonth(0);
-
-    callApi("/generate-path-preview", { goal: active, skills: "Beginner", duration: "3 months" })
-      .then((data) => {
-        const months = (data?.months || data?.roadmap?.months || []) as MonthData[];
-        if (months.length > 0) {
-          setRoadmapData(months);
-          if (typeof window !== "undefined") localStorage.setItem(`roadmap_data_${active}`, JSON.stringify(months));
+    // Generate roadmap on mount / career change
+    useEffect(() => {
+      let active = "Machine Learning Engineer";
+      if (typeof window !== "undefined") {
+        active = careerParam || localStorage.getItem("active_career") || "Machine Learning Engineer";
+        setCareerTitle(active);
+        localStorage.setItem("active_career", active);
+        
+        const savedProgress = localStorage.getItem(`progress_${active}`);
+        if (savedProgress) {
+          setCompletedTopics(JSON.parse(savedProgress));
         } else {
-          setRoadmapData(staticRoadmap);
+          setCompletedTopics({});
         }
-      })
-      .catch(() => {
-        setRoadmapData(staticRoadmap);
-      })
-      .finally(() => setIsGenerating(false));
-  }, [careerParam]);
 
-  const toggleTopicCompletion = (topicId: string) => {
+        // If not explicitly coming from careerParam change, try loading saved roadmap first
+        if (!careerParam) {
+          const savedRoadmapStr = localStorage.getItem(`roadmap_data_${active}`);
+          if (savedRoadmapStr) {
+            try {
+              const savedMonths = JSON.parse(savedRoadmapStr);
+              if (savedMonths && savedMonths.length > 0) {
+                setRoadmapData(savedMonths);
+                setIsGenerating(false);
+                setExpandedMonth(0);
+                return;
+              }
+            } catch (e) {
+              console.error(e);
+            }
+          }
+        }
+      }
+
+      setIsGenerating(true);
+      setRoadmapData([]);
+      setExpandedMonth(0);
+
+      callApi("/generate-path-preview", { goal: active, skills: "Beginner", duration: "3 months" })
+        .then((data) => {
+          const months = (data?.months || data?.roadmap?.months || []) as MonthData[];
+          if (months.length > 0) {
+            setRoadmapData(months);
+            if (typeof window !== "undefined") localStorage.setItem(`roadmap_data_${active}`, JSON.stringify(months));
+          } else {
+            setRoadmapData(staticRoadmap);
+            if (typeof window !== "undefined") localStorage.setItem(`roadmap_data_${active}`, JSON.stringify(staticRoadmap));
+          }
+        })
+        .catch(() => {
+          setRoadmapData(staticRoadmap);
+          if (typeof window !== "undefined") localStorage.setItem(`roadmap_data_${active}`, JSON.stringify(staticRoadmap));
+        })
+        .finally(() => setIsGenerating(false));
+    }, [careerParam]);
+
+  const toggleTopicCompletion = (topicId: string, topicName?: string) => {
     setCompletedTopics((prev) => {
-      const updated = { ...prev, [topicId]: !prev[topicId] };
+      const nextState = !prev[topicId];
+      const updated = { ...prev, [topicId]: nextState };
+      if (topicName) updated[topicName] = nextState;
       if (typeof window !== "undefined") {
         localStorage.setItem(`progress_${careerTitle}`, JSON.stringify(updated));
       }
@@ -452,8 +489,8 @@ function RoadmapPageInner() {
                                       <div className="flex justify-between items-start mb-2">
                                          <span className="font-medium text-sm group-hover:text-primary transition-colors">{topic.name}</span>
                                          <button 
-                                           onClick={() => toggleTopicCompletion(topic.id || topic.name)}
-                                           className={`transition-colors ${completedTopics[topic.id || topic.name] ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
+                                           onClick={() => toggleTopicCompletion(topic.id || topic.name, topic.name)}
+                                           className={`transition-colors ${completedTopics[topic.id || topic.name] || completedTopics[topic.name] ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
                                          >
                                            <CheckCircle2 className="w-4 h-4" />
                                          </button>

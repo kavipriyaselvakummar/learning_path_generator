@@ -19,35 +19,56 @@ def parse_json_response(response_text):
 
 def generate_learning_roadmap(goal, skills, duration, context=""):
     prompt = f"""
-    Create a highly detailed, professional learning roadmap.
+    Create a highly detailed, professional 3-month learning roadmap.
     
     Context: {context}
 
     Goal: {goal}
     Current Skills: {skills}
-    Duration: {duration} (CRITICAL: You MUST output exactly 3 months in the array, no more, no less).
+    Duration: 3 months
 
-    Return ONLY valid JSON.
-    Format:
+    CRITICAL RULES:
+    - The "months" array MUST have EXACTLY 3 objects (month 1, month 2, month 3).
+    - Each month MUST have at least 4 topics and 1 project.
+    - Never output fewer than 3 months.
+
+    Return ONLY valid JSON matching this exact structure:
     {{
        "goal":"{goal}",
        "months":[
        {{
            "month":1,
-           "title": "Month 1 Theme",
+           "title": "Foundations & Basics",
            "topics":[
-                {{"id": "t1", "name": "Topic 1", "estimated_hours": 10, "difficulty": "Beginner"}}
+                {{"id": "t1", "name": "Topic Name", "estimated_hours": 15, "difficulty": "Beginner"}},
+                {{"id": "t2", "name": "Topic Name", "estimated_hours": 10, "difficulty": "Beginner"}},
+                {{"id": "t3", "name": "Topic Name", "estimated_hours": 12, "difficulty": "Beginner"}},
+                {{"id": "t4", "name": "Topic Name", "estimated_hours": 10, "difficulty": "Beginner"}}
            ],
            "projects":[
-                {{"id": "p1", "title": "Project 1", "difficulty": "Beginner", "technologies": ["HTML"], "estimated_time": "1 week"}}
+                {{"id": "p1", "title": "Project Title", "difficulty": "Beginner", "technologies": ["Tech1"], "estimated_time": "1 week"}}
            ],
            "resources":[
-                {{"id": "r1", "title": "Resource 1", "type": "course", "url": "https://..."}}
+                {{"id": "r1", "title": "Resource Title", "type": "course", "url": "https://..."}}
            ]
+       }},
+       {{
+           "month":2,
+           "title": "Intermediate Skills",
+           "topics":[ ... at least 4 topics ... ],
+           "projects":[ ... at least 1 project ... ],
+           "resources":[ ... ]
+       }},
+       {{
+           "month":3,
+           "title": "Advanced Mastery & Specialization",
+           "topics":[ ... at least 4 topics ... ],
+           "projects":[ ... at least 1 project ... ],
+           "resources":[ ... ]
        }}
-       ] // MUST contain exactly the number of months specified in {duration}. Each month MUST contain at least 4 topics and 1 project.
+       ]
     }}
-    Do not include markdown. Do not include explanations.
+    Do not include markdown. Do not include explanations. Do not output fewer than 3 months.
     """
     response = model.generate_content(prompt)
     try:
