@@ -12,7 +12,15 @@ const mockCareers = [
   { id: 4, title: "UI/UX Designer", category: "Design", salary: "$90k - $140k", demand: "Medium", icon: "🎨" },
   { id: 5, title: "Investment Banker", category: "Finance", salary: "$150k - $250k+", demand: "Medium", icon: "📈" },
   { id: 6, title: "Cybersecurity Analyst", category: "Technology", salary: "$100k - $160k", demand: "High", icon: "🔒" },
-  
+
+  // Emerging AI & Cloud Technologies
+  { id: 20, title: "Prompt Engineer", category: "Technology", salary: "$95k - $155k", demand: "Very High", icon: "💬" },
+  { id: 21, title: "Cloud Computing Architect", category: "Technology", salary: "$135k - $200k", demand: "Very High", icon: "☁️" },
+  { id: 22, title: "AI Engineer", category: "Technology", salary: "$125k - $185k", demand: "Very High", icon: "⚡" },
+  { id: 23, title: "LLM Engineer", category: "Technology", salary: "$140k - $210k", demand: "Very High", icon: "🤖" },
+  { id: 24, title: "DevOps & MLOps Engineer", category: "Technology", salary: "$115k - $175k", demand: "High", icon: "🔄" },
+  { id: 25, title: "Blockchain & Web3 Developer", category: "Technology", salary: "$110k - $170k", demand: "High", icon: "🔗" },
+
   // Healthcare
   { id: 7, title: "Clinical Research Director", category: "Healthcare", salary: "$120k - $190k", demand: "High", icon: "🏥" },
   { id: 8, title: "Registered Nurse", category: "Healthcare", salary: "$75k - $115k", demand: "Very High", icon: "🩺" },
@@ -24,10 +32,12 @@ const mockCareers = [
   { id: 12, title: "Anesthesiologist", category: "Medicine", salary: "$280k - $400k+", demand: "High", icon: "💉" },
   { id: 13, title: "Biomedical Researcher", category: "Medicine", salary: "$85k - $130k", demand: "High", icon: "🔬" },
 
-  // Engineering
+  // Engineering & Advanced Tech
   { id: 14, title: "Robotics Engineer", category: "Engineering", salary: "$95k - $150k", demand: "Very High", icon: "🤖" },
   { id: 15, title: "Aerospace Engineer", category: "Engineering", salary: "$105k - $165k", demand: "High", icon: "🚀" },
   { id: 16, title: "Biomedical Engineer", category: "Engineering", salary: "$90k - $140k", demand: "High", icon: "🧬" },
+  { id: 26, title: "Quantum Computing Specialist", category: "Engineering", salary: "$140k - $220k", demand: "High", icon: "⚛️" },
+  { id: 27, title: "Autonomous Vehicle Engineer", category: "Engineering", salary: "$130k - $190k", demand: "High", icon: "🚗" },
   
   // Business
   { id: 17, title: "Product Manager", category: "Business", salary: "$110k - $170k", demand: "Very High", icon: "💼" },

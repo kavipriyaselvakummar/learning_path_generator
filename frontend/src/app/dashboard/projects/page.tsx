@@ -43,6 +43,31 @@ const careerProjectsMapping: Record<string, Omit<ProjectItem, "career">[]> = {
     { id: "p15", title: "Vulnerability Assessment & Audit Report", tech: ["Nessus", "Nmap Audits", "Report Writing"], difficulty: "Beginner", time: "1 week", status: "not_started" },
     { id: "p16", title: "Phishing Campaign Simulator", tech: ["GoPhish", "HTML templates", "SMTP Configs"], difficulty: "Hard", time: "3 weeks", status: "not_started" }
   ],
+  "Prompt Engineer": [
+    { id: "p25", title: "Chain-of-Thought Reasoning Benchmark", tech: ["GPT-4 API", "Python", "Eval Harness"], difficulty: "Intermediate", time: "2 weeks", status: "not_started" },
+    { id: "p26", title: "Enterprise System Prompt Library", tech: ["Promptflow", "YAML", "LangChain"], difficulty: "Beginner", time: "1 week", status: "not_started" },
+    { id: "p27", title: "Automated Red-Teaming & Jailbreak Tester", tech: ["Python", "OpenAI API", "Safety Guardrails"], difficulty: "Hard", time: "3 weeks", status: "not_started" }
+  ],
+  "Cloud Computing Architect": [
+    { id: "p28", title: "Multi-Region Highly Available AWS Architecture", tech: ["Terraform", "AWS VPC", "Route53", "ECS"], difficulty: "Hard", time: "3 weeks", status: "not_started" },
+    { id: "p29", title: "Automated Kubernetes Cluster Setup", tech: ["Docker", "Kubernetes", "Helm", "Azure AKS"], difficulty: "Intermediate", time: "2 weeks", status: "not_started" }
+  ],
+  "AI Engineer": [
+    { id: "p30", title: "Autonomous Customer Support AI Agent", tech: ["LangChain", "FastAPI", "Pinecone", "Next.js"], difficulty: "Hard", time: "3 weeks", status: "not_started" },
+    { id: "p31", title: "Document QA RAG Pipeline", tech: ["LlamaIndex", "ChromaDB", "Streamlit"], difficulty: "Intermediate", time: "2 weeks", status: "not_started" }
+  ],
+  "LLM Engineer": [
+    { id: "p32", title: "Domain-Specific LLaMA 3 Fine-Tuning (QLoRA)", tech: ["PyTorch", "HuggingFace", "Unsloth", "WandB"], difficulty: "Hard", time: "3 weeks", status: "not_started" },
+    { id: "p33", title: "Local LLM Inference Engine & API Server", tech: ["vLLM", "Ollama", "FastAPI", "CUDA"], difficulty: "Intermediate", time: "2 weeks", status: "not_started" }
+  ],
+  "DevOps & MLOps Engineer": [
+    { id: "p34", title: "End-to-End MLOps Pipeline with Model Registry", tech: ["MLflow", "GitHub Actions", "Docker", "DVC"], difficulty: "Hard", time: "3 weeks", status: "not_started" },
+    { id: "p35", title: "Automated CI/CD for Microservices", tech: ["GitHub Actions", "Argocd", "Kubernetes"], difficulty: "Intermediate", time: "2 weeks", status: "not_started" }
+  ],
+  "Blockchain & Web3 Developer": [
+    { id: "p36", title: "DeFi Automated Market Maker (AMM) Smart Contract", tech: ["Solidity", "Hardhat", "Ethers.js", "React"], difficulty: "Hard", time: "3 weeks", status: "not_started" },
+    { id: "p37", title: "NFT Staking & Governance DApp", tech: ["Solidity", "Next.js", "TailwindCSS"], difficulty: "Intermediate", time: "2 weeks", status: "not_started" }
+  ],
   "Clinical Research Director": [
     { id: "p17", title: "Clinical Trial Protocol Design", tech: ["Regulatory Frameworks", "GCP Compliance"], difficulty: "Hard", time: "3 weeks", status: "not_started" },
     { id: "p18", title: "Patient Recruitment Strategy Plan", tech: ["Data Analytics", "Recruitment Channels"], difficulty: "Intermediate", time: "2 weeks", status: "not_started" }

@@ -358,7 +358,12 @@ function RoadmapPageInner() {
       const data = await callApi(endpoint, body);
       setModalContent({ type: actionType, data: actionType === "chat" ? data.response : data, topic: topicName });
     } catch (e: any) {
-      setErrorMsg(e?.message || "Failed to generate content. Make sure the backend is running.");
+      const msg = String(e?.message || "");
+      if (msg.includes("429") || msg.includes("quota") || msg.includes("exceeded")) {
+        setErrorMsg("Gemini API Rate Limit reached (Free Tier). Using instant fallback content!");
+      } else {
+        setErrorMsg(msg || "Failed to generate content. Make sure the backend is running.");
+      }
     } finally {
       setLoadingTopic(null);
     }
