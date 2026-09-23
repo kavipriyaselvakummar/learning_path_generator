@@ -41,8 +41,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (res.ok) {
         const data = await res.json();
         setUser(data);
+        if (typeof window !== "undefined") {
+          const previousUserId = localStorage.getItem("user_id");
+          if (previousUserId && previousUserId !== String(data.id)) {
+            // Clear old user's active career and progress
+            const keysToRemove = Object.keys(localStorage).filter(
+              k => k.startsWith("progress_") || k.startsWith("roadmap_data_") || k === "active_career"
+            );
+            keysToRemove.forEach(k => localStorage.removeItem(k));
+          }
+          localStorage.setItem("user_id", String(data.id));
+          localStorage.setItem("user_name", data.name);
+          localStorage.setItem("user_email", data.email);
+        }
       } else {
-        localStorage.removeItem("token");
+        if (typeof window !== "undefined") {
+          const keysToRemove = Object.keys(localStorage).filter(
+            k => k.startsWith("progress_") || k.startsWith("roadmap_data_") || k.startsWith("user_") || k === "active_career" || k === "token"
+          );
+          keysToRemove.forEach(k => localStorage.removeItem(k));
+        }
         setUser(null);
       }
     } catch (error) {
@@ -61,9 +79,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
+    if (typeof window !== "undefined") {
+      const keysToRemove = Object.keys(localStorage).filter(
+        k => k.startsWith("progress_") || k.startsWith("roadmap_data_") || k.startsWith("user_") || k === "active_career" || k === "token"
+      );
+      keysToRemove.forEach(k => localStorage.removeItem(k));
+    }
     setUser(null);
-    router.push("/auth/login");
+    router.push("/auth?mode=login");
   };
 
   return (

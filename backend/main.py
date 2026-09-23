@@ -37,11 +37,21 @@ def home():
     return {"message": "AI learning path generator"}
 
 # --- AUTHENTICATION ---
+import re
+EMAIL_REGEX = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+
 @app.post("/auth/register", response_model=UserResponse)
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
+    if not re.match(EMAIL_REGEX, user.email):
+        raise HTTPException(status_code=400, detail="Invalid email format. Please provide a valid email address.")
+    
+    parts = user.email.split("@")
+    if len(parts) != 2 or "." not in parts[1] or len(parts[1].split(".")[-1]) < 2:
+        raise HTTPException(status_code=400, detail="Email domain is invalid. Please use a valid email domain (e.g. user@gmail.com).")
+
     db_user = db.query(User).filter(User.email == user.email).first()
     if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(status_code=400, detail="Email already registered. Please sign in instead.")
     
     hashed_password = get_password_hash(user.password)
     new_user = User(name=user.name, email=user.email, hashed_password=hashed_password)
@@ -53,12 +63,19 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
 
 @app.post("/auth/login", response_model=Token)
 def login(user: UserLogin, db: Session = Depends(get_db)):
+    if not re.match(EMAIL_REGEX, user.email):
+        raise HTTPException(status_code=400, detail="Invalid email format.")
+
     db_user = db.query(User).filter(User.email == user.email).first()
-    if not db_user or not verify_password(user.password, db_user.hashed_password):
+    if not db_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Account does not exist. Please check your email or sign up.",
+        )
+    if not verify_password(user.password, db_user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
+            detail="Incorrect password. Please try again.",
         )
     
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)

@@ -1,3 +1,10 @@
+import os
+import json
+import google.generativeai as genai
+from dotenv import load_dotenv
+
+load_dotenv()
+
 # --- API KEY ROTATION & MULTI-KEY SUPPORT ---
 def get_api_keys():
     keys_str = os.getenv("GEMINI_API_KEYS", "")
@@ -105,7 +112,8 @@ def generate_learning_roadmap(goal, skills, duration, context=""):
             try:
                 response = model.generate_content(prompt)
                 return parse_json_response(response.text)
-            catch_err = None
+            except Exception:
+                pass
         print("Gemini API Exception for Roadmap (using fallback):", e)
         return {
             "goal": goal,
